@@ -69,17 +69,8 @@ export async function saveChat({
   title: string;
   visibility: VisibilityType;
 }) {
-  try {
-    return await db.insert(chat).values({
-      id,
-      createdAt: new Date(),
-      userId,
-      title,
-      visibility,
-    });
-  } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to save chat');
-  }
+  console.log('Saving chat with fallback:', id);
+  return devFallback.saveChat({ id, userId, title, visibility });
 }
 
 export async function deleteChatById({ id }: { id: string }) {
