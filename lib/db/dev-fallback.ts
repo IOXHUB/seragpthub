@@ -1,6 +1,5 @@
 import type { User } from './schema';
 import { generateUUID } from '../utils';
-import { generateHashedPassword } from './utils';
 
 // In-memory store for development when database is not available
 const devUsers: Map<string, User> = new Map();
