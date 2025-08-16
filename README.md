@@ -1,62 +1,192 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Chat SDK</h1>
-</a>
+# LibreChat - Docker Setup
 
-<p align="center">
-    Chat SDK is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications.
-</p>
+LibreChat is an open-source AI chat interface that supports multiple AI providers including OpenAI, Anthropic, Google, and more.
 
-<p align="center">
-  <a href="https://chat-sdk.dev"><strong>Read Docs</strong></a> ·
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+## Quick Start with Docker
 
-## Features
+### Prerequisites
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+- **Docker**: Make sure Docker is installed on your system
+- **Docker Compose**: Included with Docker Desktop
 
-## Model Providers
+### Installation Steps
 
-This template ships with [xAI](https://x.ai) `grok-2-1212` as the default chat model. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+1. **Clone/Download this repository**
 
-## Deploy Your Own
+2. **Create environment file**:
+   ```bash
+   cp .env.example .env
+   ```
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+3. **Configure your AI API keys** in the `.env` file:
+   ```bash
+   # Required: At least one AI provider API key
+   OPENAI_API_KEY=your_openai_api_key_here
+   # ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   # GOOGLE_KEY=your_google_api_key_here
+   ```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot&env=AUTH_SECRET&envDescription=Learn+more+about+how+to+get+the+API+Keys+for+the+application&envLink=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=AI+Chatbot&demo-description=An+Open-Source+AI+Chatbot+Template+Built+With+Next.js+and+the+AI+SDK+by+Vercel.&demo-url=https%3A%2F%2Fchat.vercel.ai&products=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22ai%22%2C%22productSlug%22%3A%22grok%22%2C%22integrationSlug%22%3A%22xai%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22neon%22%2C%22integrationSlug%22%3A%22neon%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22upstash-kv%22%2C%22integrationSlug%22%3A%22upstash%22%7D%2C%7B%22type%22%3A%22blob%22%7D%5D)
+4. **Start LibreChat**:
+   ```bash
+   docker compose up -d
+   ```
 
-## Running locally
+5. **Access LibreChat**:
+   Open your browser and go to `http://localhost:3080`
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+### Services Included
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
+- **LibreChat API** (Port 3080): Main application server
+- **MongoDB** (Port 27017): Database for storing conversations and user data
+- **Meilisearch** (Port 7700): Search engine for chat history
+- **RAG API** (Port 8000): Retrieval Augmented Generation for document processing
+- **PGVector**: Vector database for RAG functionality
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
+### Configuration
+
+#### Environment Variables
+
+Key environment variables you can customize in `.env`:
 
 ```bash
-pnpm install
-pnpm dev
+# Server Configuration
+HOST=localhost
+PORT=3080
+DOMAIN_CLIENT=http://localhost:3080
+
+# AI Provider API Keys
+OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+GOOGLE_KEY=your_google_api_key_here
+
+# User Registration
+ALLOW_REGISTRATION=true
+ALLOW_EMAIL_LOGIN=true
+
+# App Customization
+APP_TITLE=LibreChat
+CUSTOM_FOOTER="Powered by LibreChat"
+
+# Email Configuration (Optional)
+EMAIL_SERVICE=gmail
+EMAIL_USERNAME=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+EMAIL_FROM=noreply@librechat.ai
 ```
 
-Your app template should now be running on [localhost:3000](http://localhost:3000).
+#### LibreChat Configuration
+
+Customize models and endpoints in `librechat.yaml`:
+
+```yaml
+endpoints:
+  openAI:
+    models:
+      default: [
+        "gpt-4o",
+        "gpt-4o-mini", 
+        "gpt-4-turbo",
+        "gpt-3.5-turbo"
+      ]
+  
+  anthropic:
+    models:
+      default: [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-opus-20240229"
+      ]
+```
+
+### Getting API Keys
+
+#### OpenAI
+1. Go to [OpenAI API](https://platform.openai.com/api-keys)
+2. Create an account and generate an API key
+3. Add to `.env`: `OPENAI_API_KEY=sk-...`
+
+#### Anthropic (Claude)
+1. Go to [Anthropic Console](https://console.anthropic.com/)
+2. Create an account and generate an API key
+3. Add to `.env`: `ANTHROPIC_API_KEY=sk-ant-...`
+
+#### Google (Gemini)
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Create an API key
+3. Add to `.env`: `GOOGLE_KEY=...`
+
+### Managing the Application
+
+#### Start Services
+```bash
+docker compose up -d
+```
+
+#### Stop Services
+```bash
+docker compose down
+```
+
+#### View Logs
+```bash
+docker compose logs -f api
+```
+
+#### Update LibreChat
+```bash
+docker compose pull
+docker compose up -d
+```
+
+#### Reset Database
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+### Troubleshooting
+
+#### Port Already in Use
+If port 3080 is already in use, change it in `docker-compose.yml`:
+```yaml
+services:
+  api:
+    ports:
+      - "3081:3080"  # Change external port to 3081
+```
+
+#### API Key Issues
+- Make sure API keys are correctly formatted in `.env`
+- Ensure you have sufficient credits/quota with your AI provider
+- Check the logs: `docker compose logs api`
+
+#### Database Connection Issues
+- Ensure MongoDB container is running: `docker compose ps`
+- Check database logs: `docker compose logs mongodb`
+
+### Features
+
+- **Multiple AI Providers**: OpenAI, Anthropic, Google, Azure OpenAI, and more
+- **Custom Endpoints**: Add your own AI providers
+- **Document Upload**: Upload and chat with documents using RAG
+- **Search**: Full-text search through conversation history
+- **User Authentication**: Registration and login system
+- **Conversation Management**: Save, organize, and continue conversations
+- **Responsive Design**: Works on desktop and mobile devices
+
+### Security Notes
+
+- Change default JWT secrets in production
+- Use strong passwords for database connections
+- Consider setting up SSL/TLS for production deployments
+- Regularly update Docker images for security patches
+
+### Support
+
+For issues and questions:
+- GitHub Issues: [LibreChat Issues](https://github.com/danny-avila/LibreChat/issues)
+- Documentation: [LibreChat Docs](https://librechat.ai)
+- Discord: [LibreChat Community](https://discord.librechat.ai)
+
+### License
+
+This project is licensed under the MIT License.
