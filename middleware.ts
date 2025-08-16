@@ -23,7 +23,26 @@ export async function middleware(request: NextRequest) {
     secureCookie: !isDevelopmentEnvironment,
   });
 
+  // Check for guest session cookie if no NextAuth token
+  let guestSession = null;
   if (!token) {
+    const guestCookie = request.cookies.get('guest-session');
+    if (guestCookie) {
+      try {
+        guestSession = JSON.parse(guestCookie.value);
+        // Check if session is still valid
+        if (guestSession.expires && new Date(guestSession.expires) > new Date()) {
+          // Guest session is valid, continue
+        } else {
+          guestSession = null;
+        }
+      } catch (error) {
+        guestSession = null;
+      }
+    }
+  }
+
+  if (!token && !guestSession) {
     const redirectUrl = encodeURIComponent(request.url);
 
     return NextResponse.redirect(
