@@ -8,6 +8,12 @@ config({
 });
 
 const runMigrate = async () => {
+  // Skip migrations in production builds without database
+  if (process.env.NODE_ENV === 'production' && !process.env.POSTGRES_URL) {
+    console.log('⚠️ Production build: POSTGRES_URL not defined, skipping migrations');
+    process.exit(0);
+  }
+
   if (!process.env.POSTGRES_URL) {
     console.log('⚠️ POSTGRES_URL is not defined, skipping migrations');
     process.exit(0);
@@ -33,8 +39,13 @@ const runMigrate = async () => {
     await connection.end();
     process.exit(0);
   } catch (error) {
-    console.log('⚠️ Database not reachable, skipping migrations during build');
-    console.log('This is normal during deployment builds - migrations should be run separately');
+    if (process.env.NODE_ENV === 'production') {
+      console.log('⚠️ Production build: Database not reachable, skipping migrations');
+      console.log('Migrations should be run separately in production deployments');
+    } else {
+      console.log('⚠️ Database not reachable, skipping migrations during build');
+      console.log('This is normal during deployment builds - migrations should be run separately');
+    }
     process.exit(0);
   }
 };
