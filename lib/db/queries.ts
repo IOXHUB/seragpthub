@@ -44,16 +44,34 @@ let db: any;
 let dbAvailable = false;
 
 try {
-  // biome-ignore lint: Forbidden non-null assertion.
-  client = postgres(process.env.POSTGRES_URL!, {
-    max: 1,
-    connect_timeout: 5,
-    idle_timeout: 5,
-  });
-  db = drizzle(client);
-  dbAvailable = true;
+  if (process.env.POSTGRES_URL) {
+    // For Supabase, we need to use the connection pooler
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      // Use Supabase pooler URL format
+      const dbUrl = process.env.POSTGRES_URL.includes('password')
+        ? process.env.POSTGRES_URL
+        : process.env.POSTGRES_URL.replace(':', `:${process.env.SUPABASE_DB_PASSWORD || 'yourpassword'}:`);
+
+      client = postgres(dbUrl, {
+        max: 1,
+        ssl: 'require',
+        connect_timeout: 10,
+        idle_timeout: 20,
+      });
+      db = drizzle(client);
+      dbAvailable = true;
+      console.log('Connected to Supabase database');
+    } else {
+      throw new Error('Supabase credentials not found');
+    }
+  } else {
+    throw new Error('POSTGRES_URL not found');
+  }
 } catch (error) {
-  console.warn('Database not available, using development fallback');
+  console.warn('Database not available, using development fallback:', error);
   dbAvailable = false;
 }
 
