@@ -17,6 +17,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip middleware for static assets
+  if (pathname.startsWith('/_next/') ||
+      pathname.includes('.') ||
+      pathname.startsWith('/favicon') ||
+      pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
