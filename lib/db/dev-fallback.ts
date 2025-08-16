@@ -13,11 +13,10 @@ export const devFallback = {
 
   async createUser(email: string, password: string) {
     const id = generateUUID();
-    const hashedPassword = generateHashedPassword(password);
     const user: User = {
       id,
       email,
-      password: hashedPassword,
+      password: 'fallback-password', // Simple password for fallback
       createdAt: new Date(),
     };
     devUsers.set(id, user);
@@ -27,14 +26,14 @@ export const devFallback = {
   async createGuestUser() {
     const id = generateUUID();
     const email = `guest-${Date.now()}`;
-    const password = generateHashedPassword(generateUUID());
     const user: User = {
       id,
       email,
-      password,
+      password: 'guest-password', // Simple password for fallback
       createdAt: new Date(),
     };
     devUsers.set(id, user);
+    console.log('✅ Created guest user:', { id, email });
     return [{
       id: user.id,
       email: user.email,
