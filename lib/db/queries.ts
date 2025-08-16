@@ -73,10 +73,6 @@ export async function createUser(email: string, password: string) {
 }
 
 export async function createGuestUser() {
-  if (!dbAvailable) {
-    return devFallback.createGuestUser();
-  }
-
   const email = `guest-${Date.now()}`;
   const password = generateHashedPassword(generateUUID());
 
@@ -86,8 +82,10 @@ export async function createGuestUser() {
       email: user.email,
     });
   } catch (error) {
-    console.warn('Database query failed, using fallback:', error);
-    return devFallback.createGuestUser();
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to create guest user',
+    );
   }
 }
 
