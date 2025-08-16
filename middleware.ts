@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
     secureCookie: !isDevelopmentEnvironment,
   });
 
-  // Check for guest session in URL parameters if no NextAuth token
+  // Check for guest session in URL parameters or cookies if no NextAuth token
   let guestSession = null;
   if (!token) {
     const url = new URL(request.url);
@@ -43,6 +43,7 @@ export async function middleware(request: NextRequest) {
 
     console.log('🔍 Middleware - Guest params:', { guestId: !!guestId, guestEmail: !!guestEmail });
 
+    // First check URL parameters
     if (guestId && guestEmail) {
       guestSession = {
         user: {
@@ -53,6 +54,17 @@ export async function middleware(request: NextRequest) {
         }
       };
       console.log('✅ Middleware - Guest session from URL params');
+    } else {
+      // If no URL params, check cookies
+      const guestCookie = request.cookies.get('guest-session');
+      if (guestCookie?.value) {
+        try {
+          guestSession = JSON.parse(guestCookie.value);
+          console.log('✅ Middleware - Guest session from cookie');
+        } catch (error) {
+          console.error('❌ Failed to parse guest session cookie:', error);
+        }
+      }
     }
   }
 
