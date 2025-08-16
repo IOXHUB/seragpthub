@@ -71,13 +71,22 @@ export const {
           const guestUsers = await createGuestUser();
           const guestUser = guestUsers[0];
           console.log('✅ Guest user created:', guestUser);
-          return { ...guestUser, type: 'guest' };
+
+          // Return user in the format NextAuth expects
+          return {
+            id: guestUser.id,
+            email: guestUser.email,
+            name: guestUser.email, // Add name field
+            type: 'guest'
+          };
         } catch (error) {
           console.error('❌ Guest authorization failed:', error);
           // Return a simple fallback user
+          const fallbackId = `guest-${Date.now()}`;
           return {
-            id: `guest-${Date.now()}`,
-            email: `guest-${Date.now()}@fallback.com`,
+            id: fallbackId,
+            email: `${fallbackId}@fallback.com`,
+            name: fallbackId,
             type: 'guest'
           };
         }
