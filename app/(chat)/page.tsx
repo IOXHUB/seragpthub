@@ -7,10 +7,32 @@ import { DataStreamHandler } from '@/components/data-stream-handler';
 import { auth } from '../(auth)/auth';
 import { redirect } from 'next/navigation';
 
-export default async function Page() {
+type Props = {
+  searchParams: {
+    guestId?: string;
+    guestEmail?: string;
+  };
+};
+
+export default async function Page({ searchParams }: Props) {
   const session = await auth();
 
-  if (!session) {
+  // Create guest session from URL parameters if no NextAuth session
+  let finalSession = session;
+  if (!session && searchParams.guestId && searchParams.guestEmail) {
+    finalSession = {
+      user: {
+        id: searchParams.guestId,
+        email: searchParams.guestEmail,
+        name: searchParams.guestEmail,
+        type: 'guest'
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    };
+    console.log('✅ Using guest session from URL params:', finalSession.user);
+  }
+
+  if (!finalSession) {
     redirect('/api/auth/guest');
   }
 
