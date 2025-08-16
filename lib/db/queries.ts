@@ -71,12 +71,17 @@ export async function getUser(email: string): Promise<Array<User>> {
 }
 
 export async function createUser(email: string, password: string) {
+  if (!dbAvailable) {
+    return devFallback.createUser(email, password);
+  }
+
   const hashedPassword = generateHashedPassword(password);
 
   try {
     return await db.insert(user).values({ email, password: hashedPassword });
   } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to create user');
+    console.warn('Database query failed, using fallback:', error);
+    return devFallback.createUser(email, password);
   }
 }
 
