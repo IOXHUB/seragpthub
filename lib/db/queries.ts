@@ -49,13 +49,8 @@ export async function getUser(email: string): Promise<Array<User>> {
 }
 
 export async function createUser(email: string, password: string) {
-  const hashedPassword = generateHashedPassword(password);
-
-  try {
-    return await db.insert(user).values({ email, password: hashedPassword });
-  } catch (error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to create user');
-  }
+  console.log('Creating user with fallback:', email);
+  return devFallback.createUser(email, password);
 }
 
 export async function createGuestUser() {
