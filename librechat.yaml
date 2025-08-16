@@ -1,0 +1,164 @@
+# LibreChat Configuration File
+# For more information, see the Configuration Guide:
+# https://www.librechat.ai/docs/configuration/librechat_yaml
+
+version: 1.0.9
+cache: true
+
+registration:
+  socialLogins: ["discord", "facebook", "github", "google", "openid"]
+
+endpoints:
+  # Anthropic
+  anthropic:
+    # Disable Anthropic
+    # disabled: true
+    # Import Path for custom initialization function
+    # initializeModule: "./anthropic-init.js"
+    # API key for Anthropic
+    # apiKey: "${ANTHROPIC_API_KEY}"
+    # Models configuration
+    models:
+      default: [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-5-haiku-20241022",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
+        "claude-3-haiku-20240307",
+        "claude-2.1",
+        "claude-2",
+        "claude-instant-1.2"
+      ]
+    # Optional: Set to true to enable message prefixing for conversations
+    # titleConvo: true
+    # Optional: Set to true to enable sending a preliminary message to the API (affects title generation)
+    # titleModel: "claude-3-haiku-20240307"
+    # Optional: Customize the conversation title generation prompt
+    # titleMethod: "completion"
+
+  # Azure OpenAI
+  azureOpenAI:
+    # Disable Azure OpenAI
+    # disabled: true
+    # API key for Azure OpenAI
+    # apiKey: "${AZURE_OPENAI_API_KEY}"
+    # Azure OpenAI API instance name
+    # instanceName: "${AZURE_OPENAI_API_INSTANCE_NAME}"
+    # Azure OpenAI API deployment name
+    # deploymentName: "${AZURE_OPENAI_API_DEPLOYMENT_NAME}"
+    # Azure OpenAI API version
+    # version: "${AZURE_OPENAI_API_VERSION}"
+    # Optional: Set to true to enable message prefixing for conversations
+    # titleConvo: true
+    # Optional: Set to true to enable sending a preliminary message to the API (affects title generation)
+    # titleModel: "gpt-3.5-turbo"
+    # Optional: Customize the conversation title generation prompt
+    # titleMethod: "completion"
+
+  # Google
+  google:
+    # Disable Google
+    # disabled: true
+    # API key for Google
+    # apiKey: "${GOOGLE_API_KEY}"
+    models:
+      default: [
+        "gemini-1.5-pro-latest",
+        "gemini-1.5-flash-latest",
+        "gemini-pro",
+        "gemini-pro-vision",
+        "chat-bison",
+        "chat-bison-32k",
+        "codechat-bison",
+        "codechat-bison-32k",
+        "text-bison",
+        "text-bison-32k"
+      ]
+    # Optional: Set to true to enable message prefixing for conversations
+    # titleConvo: true
+    # Optional: Set to true to enable sending a preliminary message to the API (affects title generation)
+    # titleModel: "gemini-pro"
+    # Optional: Customize the conversation title generation prompt
+    # titleMethod: "completion"
+
+  # OpenAI
+  openAI:
+    # Disable OpenAI
+    # disabled: true
+    # API key for OpenAI
+    # apiKey: "${OPENAI_API_KEY}"
+    models:
+      default: [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-4-turbo",
+        "gpt-4",
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-16k"
+      ]
+    # Optional: Set to true to enable message prefixing for conversations
+    titleConvo: true
+    # Optional: Set to true to enable sending a preliminary message to the API (affects title generation)
+    titleModel: "gpt-3.5-turbo"
+    # Optional: Customize the conversation title generation prompt
+    titleMethod: "completion"
+
+  # Custom endpoint
+  custom:
+    # Example configuration for a custom OpenAI-compatible endpoint
+    - name: "Ollama"
+      apiKey: "ollama"
+      baseURL: "http://host.docker.internal:11434/v1/"
+      models:
+        default: [
+          "llama3.2",
+          "llama3.1",
+          "codellama",
+          "gemma2"
+        ]
+        fetch: false
+      titleConvo: true
+      titleModel: "llama3.2"
+      summarize: false
+      summaryModel: "llama3.2"
+      forcePrompt: false
+      modelDisplayLabel: "Ollama"
+
+fileConfig:
+  endpoints:
+    assistants:
+      fileLimit: 5
+      fileSizeLimit: 10
+      totalSizeLimit: 50
+      supportedMimeTypes:
+        - "image/.*"
+        - "text/.*"
+        - "application/pdf"
+    openAI:
+      disabled: false
+      fileLimit: 5
+      fileSizeLimit: 10
+      totalSizeLimit: 50
+      supportedMimeTypes:
+        - "image/.*"
+        - "text/.*"
+        - "application/pdf"
+    default:
+      totalSizeLimit: 20
+    serverFileSizeLimit: 1000
+
+rateLimits:
+  fileUploads:
+    ipMax: 100
+    ipWindowInMinutes: 60
+    userMax: 50
+    userWindowInMinutes: 60
+  conversationsImport:
+    ipMax: 100
+    ipWindowInMinutes: 60
+    userMax: 50
+    userWindowInMinutes: 60
+
+# fileStrategy: "local"  # Default
+# fileStrategy: "firebase"
+fileStrategy: "local"
