@@ -39,39 +39,30 @@ import { devFallback } from './dev-fallback';
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
+// For Supabase connection, we'll use the Supabase SDK directly for now
+// and fallback to postgres driver when full URL is available
 let client: any;
 let db: any;
 let dbAvailable = false;
 
+// Use development fallback for now until we get the full connection string
 try {
-  if (process.env.POSTGRES_URL) {
-    // For Supabase, we need to use the connection pooler
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (supabaseUrl && supabaseKey) {
-      // Use Supabase pooler URL format
-      const dbUrl = process.env.POSTGRES_URL.includes('password')
-        ? process.env.POSTGRES_URL
-        : process.env.POSTGRES_URL.replace(':', `:${process.env.SUPABASE_DB_PASSWORD || 'yourpassword'}:`);
-
-      client = postgres(dbUrl, {
-        max: 1,
-        ssl: 'require',
-        connect_timeout: 10,
-        idle_timeout: 20,
-      });
-      db = drizzle(client);
-      dbAvailable = true;
-      console.log('Connected to Supabase database');
-    } else {
-      throw new Error('Supabase credentials not found');
-    }
+  if (process.env.POSTGRES_URL && process.env.POSTGRES_URL.includes('password')) {
+    client = postgres(process.env.POSTGRES_URL, {
+      max: 1,
+      ssl: 'require',
+      connect_timeout: 10,
+      idle_timeout: 20,
+    });
+    db = drizzle(client);
+    dbAvailable = true;
+    console.log('✅ Connected to Supabase database');
   } else {
-    throw new Error('POSTGRES_URL not found');
+    console.log('⚠️  Using fallback - Supabase URL needs password');
+    dbAvailable = false;
   }
 } catch (error) {
-  console.warn('Database not available, using development fallback:', error);
+  console.warn('Database connection failed, using fallback:', error);
   dbAvailable = false;
 }
 
