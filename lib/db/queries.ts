@@ -52,15 +52,13 @@ const db = drizzle(client);
 console.log('🔗 Connected to Supabase database');
 
 export async function getUser(email: string): Promise<Array<User>> {
-  if (!dbAvailable) {
-    return devFallback.getUser(email);
-  }
-
   try {
     return await db.select().from(user).where(eq(user.email, email));
   } catch (error) {
-    console.warn('Database query failed, using fallback:', error);
-    return devFallback.getUser(email);
+    throw new ChatSDKError(
+      'bad_request:database',
+      'Failed to get user by email',
+    );
   }
 }
 
