@@ -1,0 +1,39 @@
+{
+  "name": "librechat-api",
+  "version": "0.7.0",
+  "description": "LibreChat API Backend",
+  "main": "server/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "nodemon --exec node --loader tsx/esm server/index.js",
+    "start": "node server/index.js",
+    "build": "echo 'API build completed'",
+    "test": "jest",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "winston": "^3.10.0",
+    "socket.io": "^4.7.2",
+    "compression": "^1.7.4",
+    "rate-limiter-flexible": "^2.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "tsx": "^4.1.0",
+    "jest": "^29.7.0",
+    "eslint": "^8.48.0",
+    "@types/node": "^20.5.0"
+  }
+}
