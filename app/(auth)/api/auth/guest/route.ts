@@ -1,21 +1,28 @@
-import { signIn } from '@/app/(auth)/auth';
-import { isDevelopmentEnvironment } from '@/lib/constants';
-import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
+import { createGuestUser } from '@/lib/db/queries';
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const redirectUrl = searchParams.get('redirectUrl') || '/';
+  try {
+    const { searchParams } = new URL(request.url);
+    let redirectUrl = searchParams.get('redirectUrl') || '/';
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: !isDevelopmentEnvironment,
-  });
+    console.log('🔄 Guest route called, creating guest session...');
 
-  if (token) {
+    // Create guest user
+    const [guestUser] = await createGuestUser();
+    console.log('✅ Guest user created:', guestUser);
+
+    // Add guest session to URL parameters
+    const redirectUrlObj = new URL(redirectUrl);
+    redirectUrlObj.searchParams.set('guestId', guestUser.id);
+    redirectUrlObj.searchParams.set('guestEmail', guestUser.email);
+
+    console.log('✅ Guest session created, redirecting to:', redirectUrlObj.toString());
+    return NextResponse.redirect(redirectUrlObj);
+
+  } catch (error) {
+    console.error('❌ Guest route error:', error);
+    // Fallback: redirect to home
     return NextResponse.redirect(new URL('/', request.url));
   }
-
-  return signIn('guest', { redirect: true, redirectTo: redirectUrl });
 }

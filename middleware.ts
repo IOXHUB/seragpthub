@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { guestRegex, isDevelopmentEnvironment } from './lib/constants';
 
+// Simple in-memory rate limiting for guest creation
+const recentGuests = new Map<string, number>();
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -17,13 +20,65 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip middleware for static assets
+  if (pathname.startsWith('/_next/') ||
+      pathname.includes('.') ||
+      pathname.startsWith('/favicon') ||
+      pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
     secureCookie: !isDevelopmentEnvironment,
   });
 
+  // Check for guest session in URL parameters if no NextAuth token
+  let guestSession = null;
   if (!token) {
+    const url = new URL(request.url);
+    const guestId = url.searchParams.get('guestId');
+    const guestEmail = url.searchParams.get('guestEmail');
+
+    console.log('🔍 Middleware - Guest params:', { guestId: !!guestId, guestEmail: !!guestEmail });
+
+    if (guestId && guestEmail) {
+      guestSession = {
+        user: {
+          id: guestId,
+          email: guestEmail,
+          name: guestEmail,
+          type: 'guest'
+        }
+      };
+      console.log('✅ Middleware - Guest session from URL params');
+    }
+  }
+
+  if (!token && !guestSession) {
+    // Rate limiting: Don't create guests too frequently from same IP
+    const clientIp = request.headers.get('x-forwarded-for') ||
+                      request.headers.get('x-real-ip') ||
+                      'unknown';
+    const now = Date.now();
+    const lastRequest = recentGuests.get(clientIp);
+
+    // Allow max 1 guest creation per 5 seconds per IP
+    if (lastRequest && (now - lastRequest) < 5000) {
+      console.log('🚫 Rate limited guest creation for IP:', clientIp);
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    recentGuests.set(clientIp, now);
+
+    // Clean up old entries (older than 1 minute)
+    for (const [ip, timestamp] of recentGuests.entries()) {
+      if (now - timestamp > 60000) {
+        recentGuests.delete(ip);
+      }
+    }
+
     const redirectUrl = encodeURIComponent(request.url);
 
     return NextResponse.redirect(
@@ -31,9 +86,16 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const isGuest = guestRegex.test(token?.email ?? '');
+  // Add guest session to request headers for server components
+  if (guestSession) {
+    const response = NextResponse.next();
+    response.headers.set('x-guest-session', JSON.stringify(guestSession));
+    return response;
+  }
 
-  if (token && !isGuest && ['/login', '/register'].includes(pathname)) {
+  const isGuest = guestRegex.test(token?.email ?? '') || (guestSession && guestSession.user?.type === 'guest');
+
+  if ((token || guestSession) && !isGuest && ['/login', '/register'].includes(pathname)) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

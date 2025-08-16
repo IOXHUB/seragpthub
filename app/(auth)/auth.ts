@@ -37,6 +37,10 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   providers: [
     Credentials({
       credentials: {},
@@ -66,8 +70,30 @@ export const {
       id: 'guest',
       credentials: {},
       async authorize() {
-        const [guestUser] = await createGuestUser();
-        return { ...guestUser, type: 'guest' };
+        console.log('🔄 Guest authorization starting...');
+        try {
+          const guestUsers = await createGuestUser();
+          const guestUser = guestUsers[0];
+          console.log('✅ Guest user created:', guestUser);
+
+          // Return user in the format NextAuth expects
+          return {
+            id: guestUser.id,
+            email: guestUser.email,
+            name: guestUser.email, // Add name field
+            type: 'guest'
+          };
+        } catch (error) {
+          console.error('❌ Guest authorization failed:', error);
+          // Return a simple fallback user
+          const fallbackId = `guest-${Date.now()}`;
+          return {
+            id: fallbackId,
+            email: `${fallbackId}@fallback.com`,
+            name: fallbackId,
+            type: 'guest'
+          };
+        }
       },
     }),
   ],

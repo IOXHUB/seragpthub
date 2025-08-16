@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 import { Chat } from '@/components/chat';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
@@ -7,10 +7,51 @@ import { DataStreamHandler } from '@/components/data-stream-handler';
 import { auth } from '../(auth)/auth';
 import { redirect } from 'next/navigation';
 
-export default async function Page() {
+type Props = {
+  searchParams: {
+    guestId?: string;
+    guestEmail?: string;
+  };
+};
+
+export default async function Page({ searchParams }: Props) {
   const session = await auth();
 
+  // Try to get guest session from headers (set by middleware)
+  let finalSession = session;
   if (!session) {
+    const headersList = await headers();
+    const guestSessionHeader = headersList.get('x-guest-session');
+
+    if (guestSessionHeader) {
+      try {
+        const guestSession = JSON.parse(guestSessionHeader);
+        finalSession = {
+          user: guestSession.user,
+          expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        };
+        console.log('✅ Using guest session from headers:', finalSession.user);
+      } catch (error) {
+        console.error('❌ Failed to parse guest session from headers:', error);
+      }
+    }
+
+    // Fallback to URL parameters
+    if (!finalSession && searchParams.guestId && searchParams.guestEmail) {
+      finalSession = {
+        user: {
+          id: searchParams.guestId,
+          email: searchParams.guestEmail,
+          name: searchParams.guestEmail,
+          type: 'guest'
+        },
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      };
+      console.log('✅ Using guest session from URL params:', finalSession.user);
+    }
+  }
+
+  if (!finalSession) {
     redirect('/api/auth/guest');
   }
 
@@ -29,7 +70,7 @@ export default async function Page() {
           initialChatModel={DEFAULT_CHAT_MODEL}
           initialVisibilityType="private"
           isReadonly={false}
-          session={session}
+          session={finalSession}
           autoResume={false}
         />
         <DataStreamHandler />
@@ -46,7 +87,7 @@ export default async function Page() {
         initialChatModel={modelIdFromCookie.value}
         initialVisibilityType="private"
         isReadonly={false}
-        session={session}
+        session={finalSession}
         autoResume={false}
       />
       <DataStreamHandler />
