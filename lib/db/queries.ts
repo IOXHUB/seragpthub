@@ -93,22 +93,29 @@ export async function createUser(email: string, password: string) {
 }
 
 export async function createGuestUser() {
+  // Always use fallback for now to avoid connection issues
+  console.log('Creating guest user with fallback...');
+  return devFallback.createGuestUser();
+
+  /* Uncomment when Supabase connection is stable
+  if (!dbConnected) {
+    console.log('Using fallback for guest user creation');
+    return devFallback.createGuestUser();
+  }
+
   const email = `guest-${Date.now()}`;
   const password = generateHashedPassword(generateUUID());
 
   try {
-    console.log('Creating guest user...');
     return await db.insert(user).values({ email, password }).returning({
       id: user.id,
       email: user.email,
     });
   } catch (error) {
-    console.error('Failed to create guest user:', error);
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to create guest user',
-    );
+    console.warn('Database failed, using fallback:', error);
+    return devFallback.createGuestUser();
   }
+  */
 }
 
 export async function saveChat({
