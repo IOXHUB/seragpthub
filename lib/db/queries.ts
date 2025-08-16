@@ -44,14 +44,8 @@ console.log('🔄 Using in-memory fallback database for development');
 let dbConnected = false;
 
 export async function getUser(email: string): Promise<Array<User>> {
-  try {
-    return await db.select().from(user).where(eq(user.email, email));
-  } catch (error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to get user by email',
-    );
-  }
+  console.log('Getting user with fallback:', email);
+  return devFallback.getUser(email);
 }
 
 export async function createUser(email: string, password: string) {
