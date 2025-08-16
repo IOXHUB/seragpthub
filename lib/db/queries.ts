@@ -38,17 +38,32 @@ import { ChatSDKError } from '../errors';
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
-// Supabase PostgreSQL connection
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!, {
-  max: 1,
-  ssl: 'require',
-  connect_timeout: 10,
-  idle_timeout: 20,
-});
-const db = drizzle(client);
+// Supabase PostgreSQL connection with optimized settings
+let client: any;
+let db: any;
 
-console.log('🔗 Connected to Supabase database');
+try {
+  if (process.env.POSTGRES_URL) {
+    console.log('🔗 Connecting to Supabase database...');
+
+    client = postgres(process.env.POSTGRES_URL, {
+      max: 1,
+      ssl: 'require',
+      connect_timeout: 5,
+      idle_timeout: 10,
+      max_lifetime: 60,
+      transform: postgres.camel,
+    });
+
+    db = drizzle(client);
+    console.log('✅ Supabase database connection initialized');
+  } else {
+    throw new Error('POSTGRES_URL not found');
+  }
+} catch (error) {
+  console.error('❌ Database connection error:', error);
+  throw error;
+}
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
