@@ -8,13 +8,14 @@ import { auth } from '../(auth)/auth';
 import { redirect } from 'next/navigation';
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     guestId?: string;
     guestEmail?: string;
-  };
+  }>;
 };
 
 export default async function Page({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
   const session = await auth();
 
   // Try to get guest session from headers (set by middleware)
