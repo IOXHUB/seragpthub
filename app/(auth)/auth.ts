@@ -66,8 +66,21 @@ export const {
       id: 'guest',
       credentials: {},
       async authorize() {
-        const [guestUser] = await createGuestUser();
-        return { ...guestUser, type: 'guest' };
+        console.log('🔄 Guest authorization starting...');
+        try {
+          const guestUsers = await createGuestUser();
+          const guestUser = guestUsers[0];
+          console.log('✅ Guest user created:', guestUser);
+          return { ...guestUser, type: 'guest' };
+        } catch (error) {
+          console.error('❌ Guest authorization failed:', error);
+          // Return a simple fallback user
+          return {
+            id: `guest-${Date.now()}`,
+            email: `guest-${Date.now()}@fallback.com`,
+            type: 'guest'
+          };
+        }
       },
     }),
   ],
