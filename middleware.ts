@@ -27,16 +27,21 @@ export async function middleware(request: NextRequest) {
   let guestSession = null;
   if (!token) {
     const guestCookie = request.cookies.get('guest-session');
+    console.log('🔍 Middleware - Guest cookie:', !!guestCookie);
     if (guestCookie) {
       try {
         guestSession = JSON.parse(guestCookie.value);
+        console.log('🔍 Middleware - Guest session parsed:', !!guestSession);
         // Check if session is still valid
         if (guestSession.expires && new Date(guestSession.expires) > new Date()) {
+          console.log('✅ Middleware - Guest session valid');
           // Guest session is valid, continue
         } else {
+          console.log('❌ Middleware - Guest session expired');
           guestSession = null;
         }
       } catch (error) {
+        console.log('❌ Middleware - Guest session parse error:', error);
         guestSession = null;
       }
     }
