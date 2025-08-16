@@ -38,12 +38,12 @@ export default async function Page({ searchParams }: Props) {
     }
 
     // Fallback to URL parameters
-    if (!finalSession && searchParams.guestId && searchParams.guestEmail) {
+    if (!finalSession && resolvedSearchParams.guestId && resolvedSearchParams.guestEmail) {
       finalSession = {
         user: {
-          id: searchParams.guestId,
-          email: searchParams.guestEmail,
-          name: searchParams.guestEmail,
+          id: resolvedSearchParams.guestId,
+          email: resolvedSearchParams.guestEmail,
+          name: resolvedSearchParams.guestEmail,
           type: 'guest'
         },
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
