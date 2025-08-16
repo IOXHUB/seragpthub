@@ -1,38 +1,7 @@
 import 'server-only';
 
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  gt,
-  gte,
-  inArray,
-  lt,
-  type SQL,
-} from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-
-import {
-  user,
-  chat,
-  type User,
-  document,
-  type Suggestion,
-  suggestion,
-  message,
-  vote,
-  type DBMessage,
-  type Chat,
-  stream,
-} from './schema';
-import type { ArtifactKind } from '@/components/artifact';
-import { generateUUID } from '../utils';
-import { generateHashedPassword } from './utils';
+import type { User } from './schema';
 import type { VisibilityType } from '@/components/visibility-selector';
-import { ChatSDKError } from '../errors';
 import { devFallback } from './dev-fallback';
 
 // Optionally, if not using email/pass login, you can
