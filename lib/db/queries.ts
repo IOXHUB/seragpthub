@@ -74,27 +74,16 @@ export async function createGuestUser() {
   const password = generateHashedPassword(generateUUID());
 
   try {
-    console.log('Creating guest user:', email);
-
-    // Add timeout wrapper
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database timeout')), 15000);
-    });
-
-    const dbPromise = db.insert(user).values({ email, password }).returning({
+    console.log('Creating guest user...');
+    return await db.insert(user).values({ email, password }).returning({
       id: user.id,
       email: user.email,
     });
-
-    const result = await Promise.race([dbPromise, timeoutPromise]);
-    console.log('✅ Guest user created successfully');
-    return result;
-
   } catch (error) {
-    console.error('❌ Failed to create guest user:', error);
+    console.error('Failed to create guest user:', error);
     throw new ChatSDKError(
       'bad_request:database',
-      `Failed to create guest user: ${error.message}`,
+      'Failed to create guest user',
     );
   }
 }
