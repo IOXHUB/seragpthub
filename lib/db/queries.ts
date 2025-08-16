@@ -39,15 +39,14 @@ import { devFallback } from './dev-fallback';
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
-// For Supabase connection, we'll use the Supabase SDK directly for now
-// and fallback to postgres driver when full URL is available
+// Supabase PostgreSQL connection
 let client: any;
 let db: any;
 let dbAvailable = false;
 
-// Use development fallback for now until we get the full connection string
 try {
-  if (process.env.POSTGRES_URL && process.env.POSTGRES_URL.includes('password')) {
+  if (process.env.POSTGRES_URL && process.env.POSTGRES_URL.includes('v83CHGDJs3MVQ80v')) {
+    console.log('🔗 Connecting to Supabase database...');
     client = postgres(process.env.POSTGRES_URL, {
       max: 1,
       ssl: 'require',
@@ -56,13 +55,13 @@ try {
     });
     db = drizzle(client);
     dbAvailable = true;
-    console.log('✅ Connected to Supabase database');
+    console.log('✅ Successfully connected to Supabase database');
   } else {
-    console.log('⚠️  Using fallback - Supabase URL needs password');
+    console.log('⚠️  Database URL not found or incomplete, using fallback');
     dbAvailable = false;
   }
 } catch (error) {
-  console.warn('Database connection failed, using fallback:', error);
+  console.warn('❌ Database connection failed, using fallback:', error);
   dbAvailable = false;
 }
 
