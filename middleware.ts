@@ -41,10 +41,34 @@ export async function middleware(request: NextRequest) {
     const guestId = url.searchParams.get('guestId');
     const guestEmail = url.searchParams.get('guestEmail');
 
-    console.log('🔍 Middleware - Guest params:', { guestId: !!guestId, guestEmail: !!guestEmail });
+    // First check cookies BEFORE URL params to avoid loops
+    const guestCookie = request.cookies.get('guest-session');
+    if (guestCookie?.value) {
+      try {
+        guestSession = JSON.parse(guestCookie.value);
+        console.log('✅ Middleware - Guest session from cookie');
 
-    // First check URL parameters
-    if (guestId && guestEmail) {
+        // If we have a valid cookie but also URL params, clean the URL
+        if (guestId && guestEmail) {
+          const cleanUrl = new URL(url);
+          cleanUrl.searchParams.delete('guestId');
+          cleanUrl.searchParams.delete('guestEmail');
+
+          const redirectResponse = NextResponse.redirect(cleanUrl);
+          redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
+          console.log('✅ Middleware - Cleaning URL, guest session from cookie');
+          return redirectResponse;
+        }
+      } catch (error) {
+        console.error('❌ Failed to parse guest session cookie:', error);
+        // If cookie is corrupted, clear it
+        const response = NextResponse.next();
+        response.cookies.delete('guest-session');
+      }
+    }
+
+    // Only check URL params if no valid cookie exists
+    if (!guestSession && guestId && guestEmail) {
       guestSession = {
         user: {
           id: guestId,
@@ -54,17 +78,23 @@ export async function middleware(request: NextRequest) {
         }
       };
       console.log('✅ Middleware - Guest session from URL params');
-    } else {
-      // If no URL params, check cookies
-      const guestCookie = request.cookies.get('guest-session');
-      if (guestCookie?.value) {
-        try {
-          guestSession = JSON.parse(guestCookie.value);
-          console.log('✅ Middleware - Guest session from cookie');
-        } catch (error) {
-          console.error('❌ Failed to parse guest session cookie:', error);
-        }
-      }
+
+      // Set cookie and redirect to clean URL
+      const cleanUrl = new URL(url);
+      cleanUrl.searchParams.delete('guestId');
+      cleanUrl.searchParams.delete('guestEmail');
+
+      const redirectResponse = NextResponse.redirect(cleanUrl);
+      redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
+      redirectResponse.cookies.set('guest-session', JSON.stringify(guestSession), {
+        httpOnly: true,
+        secure: !isDevelopmentEnvironment,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 // 24 hours
+      });
+
+      console.log('✅ Middleware - Setting guest cookie and redirecting to clean URL');
+      return redirectResponse;
     }
   }
 
@@ -76,16 +106,13 @@ export async function middleware(request: NextRequest) {
     const now = Date.now();
     const lastRequest = recentGuests.get(clientIp);
 
-    // Allow max 1 guest creation per 2 seconds per IP in development, but only for actual guest creation requests
-    // Don't rate limit if this is already a redirect to guest creation
+    // Allow max 1 guest creation per 10 seconds per IP in development
     const isGuestCreationRequest = pathname === '/api/auth/guest' || request.url.includes('/api/auth/guest');
-    const rateLimitWindow = isDevelopmentEnvironment ? 1000 : 5000; // 1 second in dev, 5 seconds in prod
+    const rateLimitWindow = isDevelopmentEnvironment ? 10000 : 30000; // 10 seconds in dev, 30 seconds in prod
 
-    // In development, be much more permissive with rate limiting
-    if (!isDevelopmentEnvironment && !isGuestCreationRequest && lastRequest && (now - lastRequest) < rateLimitWindow) {
+    if (!isGuestCreationRequest && lastRequest && (now - lastRequest) < rateLimitWindow) {
       console.log('🚫 Rate limited guest creation for IP:', clientIp);
-      // Return a simple response instead of redirecting to avoid loops
-      return new Response('Rate limited. Please wait a few seconds and try again.', { status: 429 });
+      return new Response('Rate limited. Please wait and refresh the page.', { status: 429 });
     }
 
     if (!isGuestCreationRequest) {
@@ -110,30 +137,6 @@ export async function middleware(request: NextRequest) {
   if (guestSession) {
     const response = NextResponse.next();
     response.headers.set('x-guest-session', JSON.stringify(guestSession));
-
-    // If guest session came from URL params, set a cookie and redirect to clean URL
-    const url = new URL(request.url);
-    const hasGuestParams = url.searchParams.has('guestId') && url.searchParams.has('guestEmail');
-
-    if (hasGuestParams) {
-      // Set cookie and redirect to clean URL
-      const cleanUrl = new URL(url);
-      cleanUrl.searchParams.delete('guestId');
-      cleanUrl.searchParams.delete('guestEmail');
-
-      const redirectResponse = NextResponse.redirect(cleanUrl);
-      redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
-      redirectResponse.cookies.set('guest-session', JSON.stringify(guestSession), {
-        httpOnly: true,
-        secure: !isDevelopmentEnvironment,
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 // 24 hours
-      });
-
-      console.log('✅ Middleware - Setting guest cookie and redirecting to clean URL');
-      return redirectResponse;
-    }
-
     return response;
   }
 
