@@ -40,30 +40,16 @@ import { devFallback } from './dev-fallback';
 // https://authjs.dev/reference/adapter/drizzle
 
 // Supabase PostgreSQL connection
-let client: any;
-let db: any;
-let dbAvailable = false;
+// biome-ignore lint: Forbidden non-null assertion.
+const client = postgres(process.env.POSTGRES_URL!, {
+  max: 1,
+  ssl: 'require',
+  connect_timeout: 10,
+  idle_timeout: 20,
+});
+const db = drizzle(client);
 
-try {
-  if (process.env.POSTGRES_URL && process.env.POSTGRES_URL.includes('v83CHGDJs3MVQ80v')) {
-    console.log('🔗 Connecting to Supabase database...');
-    client = postgres(process.env.POSTGRES_URL, {
-      max: 1,
-      ssl: 'require',
-      connect_timeout: 10,
-      idle_timeout: 20,
-    });
-    db = drizzle(client);
-    dbAvailable = true;
-    console.log('✅ Successfully connected to Supabase database');
-  } else {
-    console.log('⚠️  Database URL not found or incomplete, using fallback');
-    dbAvailable = false;
-  }
-} catch (error) {
-  console.warn('❌ Database connection failed, using fallback:', error);
-  dbAvailable = false;
-}
+console.log('🔗 Connected to Supabase database');
 
 export async function getUser(email: string): Promise<Array<User>> {
   if (!dbAvailable) {
