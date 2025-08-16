@@ -110,6 +110,30 @@ export async function middleware(request: NextRequest) {
   if (guestSession) {
     const response = NextResponse.next();
     response.headers.set('x-guest-session', JSON.stringify(guestSession));
+
+    // If guest session came from URL params, set a cookie and redirect to clean URL
+    const url = new URL(request.url);
+    const hasGuestParams = url.searchParams.has('guestId') && url.searchParams.has('guestEmail');
+
+    if (hasGuestParams) {
+      // Set cookie and redirect to clean URL
+      const cleanUrl = new URL(url);
+      cleanUrl.searchParams.delete('guestId');
+      cleanUrl.searchParams.delete('guestEmail');
+
+      const redirectResponse = NextResponse.redirect(cleanUrl);
+      redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
+      redirectResponse.cookies.set('guest-session', JSON.stringify(guestSession), {
+        httpOnly: true,
+        secure: !isDevelopmentEnvironment,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 // 24 hours
+      });
+
+      console.log('✅ Middleware - Setting guest cookie and redirecting to clean URL');
+      return redirectResponse;
+    }
+
     return response;
   }
 
