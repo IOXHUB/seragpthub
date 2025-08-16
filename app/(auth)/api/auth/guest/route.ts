@@ -1,33 +1,42 @@
 import { NextResponse } from 'next/server';
-import { signIn } from '@/app/(auth)/auth';
-import { redirect } from 'next/navigation';
+import { createGuestUser } from '@/lib/db/queries';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const redirectUrl = searchParams.get('redirectUrl') || '/';
 
-    console.log('🔄 Guest route called, using NextAuth signIn...');
+    console.log('🔄 Guest route called, creating guest session...');
 
-    // Use NextAuth's built-in signIn with redirect
-    await signIn('guest', {
-      redirectTo: redirectUrl,
-      redirect: true
+    // Create guest user
+    const [guestUser] = await createGuestUser();
+    console.log('✅ Guest user created:', guestUser);
+
+    // Create response with redirect
+    const response = NextResponse.redirect(new URL(redirectUrl, request.url));
+
+    // Set session cookie manually
+    response.cookies.set('guest-session', JSON.stringify({
+      user: {
+        id: guestUser.id,
+        email: guestUser.email,
+        name: guestUser.email,
+        type: 'guest'
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    }), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 // 24 hours in seconds
     });
 
-    // This line should never be reached due to redirect
-    return NextResponse.redirect(new URL(redirectUrl, request.url));
+    console.log('✅ Guest session created, redirecting to:', redirectUrl);
+    return response;
 
   } catch (error) {
-    // Check if it's a NEXT_REDIRECT error (expected behavior)
-    if (error && typeof error === 'object' && 'digest' in error &&
-        typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
-      // Re-throw NEXT_REDIRECT errors as they are handled by Next.js
-      throw error;
-    }
-
     console.error('❌ Guest route error:', error);
-    // Fallback: redirect to home for other errors
+    // Fallback: redirect to home
     return NextResponse.redirect(new URL('/', request.url));
   }
 }
