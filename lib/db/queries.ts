@@ -33,14 +33,29 @@ import { generateUUID } from '../utils';
 import { generateHashedPassword } from './utils';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { ChatSDKError } from '../errors';
+import { devFallback } from './dev-fallback';
 
 // Optionally, if not using email/pass login, you can
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!);
-const db = drizzle(client);
+let client: any;
+let db: any;
+let dbAvailable = false;
+
+try {
+  // biome-ignore lint: Forbidden non-null assertion.
+  client = postgres(process.env.POSTGRES_URL!, {
+    max: 1,
+    connect_timeout: 5,
+    idle_timeout: 5,
+  });
+  db = drizzle(client);
+  dbAvailable = true;
+} catch (error) {
+  console.warn('Database not available, using development fallback');
+  dbAvailable = false;
+}
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
