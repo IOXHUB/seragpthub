@@ -39,37 +39,9 @@ import { devFallback } from './dev-fallback';
 // use the Drizzle adapter for Auth.js / NextAuth
 // https://authjs.dev/reference/adapter/drizzle
 
-// Supabase PostgreSQL connection with fallback
-let client: any;
-let db: any;
+// Use fallback system for now - Supabase connection disabled
+console.log('🔄 Using in-memory fallback database for development');
 let dbConnected = false;
-
-try {
-  // biome-ignore lint: Forbidden non-null assertion.
-  client = postgres(process.env.POSTGRES_URL!, {
-    ssl: { rejectUnauthorized: false },
-    max: 1,
-    connect_timeout: 5,
-    idle_timeout: 10,
-  });
-  db = drizzle(client);
-
-  // Test connection
-  setTimeout(async () => {
-    try {
-      await client`SELECT 1`;
-      dbConnected = true;
-      console.log('✅ Supabase connection established');
-    } catch (error) {
-      console.warn('⚠️ Supabase connection failed, using fallback');
-      dbConnected = false;
-    }
-  }, 1000);
-
-} catch (error) {
-  console.warn('Database initialization failed, using fallback');
-  dbConnected = false;
-}
 
 export async function getUser(email: string): Promise<Array<User>> {
   try {
