@@ -23,27 +23,25 @@ export async function middleware(request: NextRequest) {
     secureCookie: !isDevelopmentEnvironment,
   });
 
-  // Check for guest session cookie if no NextAuth token
+  // Check for guest session in URL parameters if no NextAuth token
   let guestSession = null;
   if (!token) {
-    const guestCookie = request.cookies.get('guest-session');
-    console.log('🔍 Middleware - Guest cookie:', !!guestCookie);
-    if (guestCookie) {
-      try {
-        guestSession = JSON.parse(guestCookie.value);
-        console.log('🔍 Middleware - Guest session parsed:', !!guestSession);
-        // Check if session is still valid
-        if (guestSession.expires && new Date(guestSession.expires) > new Date()) {
-          console.log('✅ Middleware - Guest session valid');
-          // Guest session is valid, continue
-        } else {
-          console.log('❌ Middleware - Guest session expired');
-          guestSession = null;
+    const url = new URL(request.url);
+    const guestId = url.searchParams.get('guestId');
+    const guestEmail = url.searchParams.get('guestEmail');
+
+    console.log('🔍 Middleware - Guest params:', { guestId: !!guestId, guestEmail: !!guestEmail });
+
+    if (guestId && guestEmail) {
+      guestSession = {
+        user: {
+          id: guestId,
+          email: guestEmail,
+          name: guestEmail,
+          type: 'guest'
         }
-      } catch (error) {
-        console.log('❌ Middleware - Guest session parse error:', error);
-        guestSession = null;
-      }
+      };
+      console.log('✅ Middleware - Guest session from URL params');
     }
   }
 
