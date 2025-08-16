@@ -61,6 +61,13 @@ export async function middleware(request: NextRequest) {
     );
   }
 
+  // Add guest session to request headers for server components
+  if (guestSession) {
+    const response = NextResponse.next();
+    response.headers.set('x-guest-session', JSON.stringify(guestSession));
+    return response;
+  }
+
   const isGuest = guestRegex.test(token?.email ?? '') || (guestSession && guestSession.user?.type === 'guest');
 
   if ((token || guestSession) && !isGuest && ['/login', '/register'].includes(pathname)) {
