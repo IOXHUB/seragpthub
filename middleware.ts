@@ -64,11 +64,12 @@ export async function middleware(request: NextRequest) {
     const now = Date.now();
     const lastRequest = recentGuests.get(clientIp);
 
-    // Allow max 1 guest creation per 5 seconds per IP, but only for actual guest creation requests
+    // Allow max 1 guest creation per 2 seconds per IP in development, but only for actual guest creation requests
     // Don't rate limit if this is already a redirect to guest creation
     const isGuestCreationRequest = pathname === '/api/auth/guest' || request.url.includes('/api/auth/guest');
+    const rateLimitWindow = isDevelopmentEnvironment ? 2000 : 5000; // 2 seconds in dev, 5 seconds in prod
 
-    if (!isGuestCreationRequest && lastRequest && (now - lastRequest) < 5000) {
+    if (!isGuestCreationRequest && lastRequest && (now - lastRequest) < rateLimitWindow) {
       console.log('🚫 Rate limited guest creation for IP:', clientIp);
       // Return a simple response instead of redirecting to avoid loops
       return new Response('Rate limited. Please wait a few seconds and try again.', { status: 429 });
