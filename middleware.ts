@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { guestRegex, isDevelopmentEnvironment } from './lib/constants';
 
+// Simple in-memory rate limiting for guest creation
+const recentGuests = new Map<string, number>();
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -54,6 +57,28 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!token && !guestSession) {
+    // Rate limiting: Don't create guests too frequently from same IP
+    const clientIp = request.headers.get('x-forwarded-for') ||
+                      request.headers.get('x-real-ip') ||
+                      'unknown';
+    const now = Date.now();
+    const lastRequest = recentGuests.get(clientIp);
+
+    // Allow max 1 guest creation per 5 seconds per IP
+    if (lastRequest && (now - lastRequest) < 5000) {
+      console.log('🚫 Rate limited guest creation for IP:', clientIp);
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    recentGuests.set(clientIp, now);
+
+    // Clean up old entries (older than 1 minute)
+    for (const [ip, timestamp] of recentGuests.entries()) {
+      if (now - timestamp > 60000) {
+        recentGuests.delete(ip);
+      }
+    }
+
     const redirectUrl = encodeURIComponent(request.url);
 
     return NextResponse.redirect(
