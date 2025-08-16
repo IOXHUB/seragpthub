@@ -54,83 +54,93 @@ export const devFallback = {
     return chat;
   },
 
-  // Add other methods as needed
-  async getChatsByUserId() {
-    return { chats: [], hasMore: false };
+  // Add all missing methods with proper implementations
+  async getChatsByUserId({ id, limit }: any) {
+    const userChats = Array.from(devChats.values()).filter(chat => chat.userId === id);
+    const limitedChats = userChats.slice(0, limit);
+    return {
+      chats: limitedChats,
+      hasMore: userChats.length > limit
+    };
   },
 
-  async getChatById() {
+  async getChatById({ id }: any) {
+    return devChats.get(id) || null;
+  },
+
+  async saveMessages({ messages }: any) {
+    return messages; // Just return as-is for fallback
+  },
+
+  async getMessagesByChatId({ id }: any) {
+    return []; // Return empty for now
+  },
+
+  async voteMessage({ chatId, messageId, type }: any) {
+    return { chatId, messageId, type };
+  },
+
+  async getVotesByChatId({ id }: any) {
+    return [];
+  },
+
+  async saveDocument({ id, title, kind, content, userId }: any) {
+    const doc = { id, title, kind, content, userId, createdAt: new Date() };
+    return [doc];
+  },
+
+  async getDocumentsById({ id }: any) {
+    return [];
+  },
+
+  async getDocumentById({ id }: any) {
     return null;
   },
 
-  async saveMessages() {
+  async deleteDocumentsByIdAfterTimestamp({ id, timestamp }: any) {
     return [];
   },
 
-  async getMessagesByChatId() {
+  async saveSuggestions({ suggestions }: any) {
+    return suggestions;
+  },
+
+  async getSuggestionsByDocumentId({ documentId }: any) {
     return [];
   },
 
-  async voteMessage() {
+  async getMessageById({ id }: any) {
+    return [];
+  },
+
+  async deleteMessagesByChatIdAfterTimestamp({ chatId, timestamp }: any) {
     return {};
   },
 
-  async getVotesByChatId() {
-    return [];
-  },
-
-  async saveDocument() {
-    return [{}];
-  },
-
-  async getDocumentsById() {
-    return [];
-  },
-
-  async getDocumentById() {
-    return null;
-  },
-
-  async deleteDocumentsByIdAfterTimestamp() {
-    return [];
-  },
-
-  async saveSuggestions() {
-    return [];
-  },
-
-  async getSuggestionsByDocumentId() {
-    return [];
-  },
-
-  async getMessageById() {
-    return [];
-  },
-
-  async deleteMessagesByChatIdAfterTimestamp() {
+  async updateChatVisiblityById({ chatId, visibility }: any) {
+    const chat = devChats.get(chatId);
+    if (chat) {
+      chat.visibility = visibility;
+    }
     return {};
   },
 
-  async updateChatVisiblityById() {
-    return {};
-  },
-
-  async getMessageCountByUserId() {
+  async getMessageCountByUserId({ id, differenceInHours }: any) {
     return 0;
   },
 
-  async createStreamId() {
+  async createStreamId({ streamId, chatId }: any) {
     return;
   },
 
-  async getStreamIdsByChatId() {
+  async getStreamIdsByChatId({ chatId }: any) {
     return [];
   },
 
-  async deleteChatById() {
-    const chat = devChats.get(arguments[0].id);
+  async deleteChatById({ id }: any) {
+    const chat = devChats.get(id);
     if (chat) {
-      devChats.delete(arguments[0].id);
+      devChats.delete(id);
     }
     return chat;
   },
