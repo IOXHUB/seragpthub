@@ -51,7 +51,7 @@ export default async function Page({ searchParams }: Props) {
           initialChatModel={DEFAULT_CHAT_MODEL}
           initialVisibilityType="private"
           isReadonly={false}
-          session={session}
+          session={finalSession}
           autoResume={false}
         />
         <DataStreamHandler />
@@ -68,7 +68,7 @@ export default async function Page({ searchParams }: Props) {
         initialChatModel={modelIdFromCookie.value}
         initialVisibilityType="private"
         isReadonly={false}
-        session={session}
+        session={finalSession}
         autoResume={false}
       />
       <DataStreamHandler />
