@@ -39,64 +39,13 @@ export async function middleware(request: NextRequest) {
     secureCookie: !isDevelopmentEnvironment,
   });
 
-  // Check for guest session in URL parameters or cookies if no NextAuth token
-  let guestSession = null;
+  // Redirect unauthenticated users to login
   if (!token) {
-    // Check cookies first
-    const guestCookie = request.cookies.get('guest-session');
-    if (guestCookie?.value) {
-      try {
-        guestSession = JSON.parse(guestCookie.value);
-        console.log('✅ Found guest session in cookie:', guestSession.user?.email);
-      } catch (error) {
-        console.error('❌ Failed to parse guest session cookie:', error);
-      }
+    if (!pathname.startsWith('/api/auth/') &&
+        pathname !== '/login' &&
+        pathname !== '/register') {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
-
-    // If no cookie, check URL params
-    if (!guestSession) {
-      const url = new URL(request.url);
-      const guestId = url.searchParams.get('guestId');
-      const guestEmail = url.searchParams.get('guestEmail');
-
-      if (guestId && guestEmail) {
-        guestSession = {
-          user: {
-            id: guestId,
-            email: guestEmail,
-            name: guestEmail,
-            type: 'guest'
-          }
-        };
-        console.log('✅ Created guest session from URL params:', guestSession.user?.email);
-      }
-    }
-  }
-
-  if (!token && !guestSession) {
-    // Only redirect to create guest if we're not already in the auth flow
-    if (!pathname.startsWith('/api/auth/')) {
-      const redirectUrl = encodeURIComponent(request.url);
-      return NextResponse.redirect(
-        new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url),
-      );
-    }
-  }
-
-  // Add guest session to request headers for server components
-  if (guestSession) {
-    const response = NextResponse.next();
-    response.headers.set('x-guest-session', JSON.stringify(guestSession));
-
-    // Always set/update cookie to ensure it's fresh
-    response.cookies.set('guest-session', JSON.stringify(guestSession), {
-      httpOnly: true,
-      secure: !isDevelopmentEnvironment,
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 // 24 hours
-    });
-
-    return response;
   }
 
   const isGuest = guestRegex.test(token?.email ?? '') || (guestSession && guestSession.user?.type === 'guest');
