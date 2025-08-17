@@ -1,14 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { guestRegex, isDevelopmentEnvironment } from './lib/constants';
-
-// Simple in-memory rate limiting for guest creation (very permissive in dev)
-const recentGuests = new Map<string, number>();
-
-// Clear cache periodically to prevent memory leaks
-setInterval(() => {
-  recentGuests.clear();
-}, 60000); // Clear every minute
+import { isDevelopmentEnvironment } from './lib/constants';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -39,65 +31,17 @@ export async function middleware(request: NextRequest) {
     secureCookie: !isDevelopmentEnvironment,
   });
 
-  // Check for guest session in URL parameters or cookies if no NextAuth token
-  let guestSession = null;
+  // Redirect unauthenticated users to login
   if (!token) {
-    const url = new URL(request.url);
-    const guestId = url.searchParams.get('guestId');
-    const guestEmail = url.searchParams.get('guestEmail');
-
-    // Check cookies first
-    const guestCookie = request.cookies.get('guest-session');
-    if (guestCookie?.value) {
-      try {
-        guestSession = JSON.parse(guestCookie.value);
-      } catch (error) {
-        console.error('❌ Failed to parse guest session cookie:', error);
-      }
-    }
-
-    // If URL params exist and no valid cookie, create session from URL params
-    if (!guestSession && guestId && guestEmail) {
-      guestSession = {
-        user: {
-          id: guestId,
-          email: guestEmail,
-          name: guestEmail,
-          type: 'guest'
-        }
-      };
+    if (!pathname.startsWith('/api/auth/') &&
+        pathname !== '/login' &&
+        pathname !== '/register') {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
-  if (!token && !guestSession) {
-    const redirectUrl = encodeURIComponent(request.url);
-    return NextResponse.redirect(
-      new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url),
-    );
-  }
-
-  // Add guest session to request headers for server components
-  if (guestSession) {
-    const response = NextResponse.next();
-    response.headers.set('x-guest-session', JSON.stringify(guestSession));
-
-    // Set cookie if it doesn't exist (but don't redirect)
-    const guestCookie = request.cookies.get('guest-session');
-    if (!guestCookie?.value) {
-      response.cookies.set('guest-session', JSON.stringify(guestSession), {
-        httpOnly: true,
-        secure: !isDevelopmentEnvironment,
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 // 24 hours
-      });
-    }
-
-    return response;
-  }
-
-  const isGuest = guestRegex.test(token?.email ?? '') || (guestSession && guestSession.user?.type === 'guest');
-
-  if ((token || guestSession) && !isGuest && ['/login', '/register'].includes(pathname)) {
+  // Redirect authenticated users away from auth pages
+  if (token && ['/login', '/register'].includes(pathname)) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

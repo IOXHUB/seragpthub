@@ -1,7 +1,7 @@
 import { compare } from 'bcrypt-ts';
 import NextAuth, { type DefaultSession } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { createGuestUser, getUser } from '@/lib/db/queries';
+import { getUser } from '@/lib/db/queries';
 import { authConfig } from './auth.config';
 import { DUMMY_PASSWORD } from '@/lib/constants';
 import type { DefaultJWT } from 'next-auth/jwt';
@@ -64,36 +64,6 @@ export const {
         if (!passwordsMatch) return null;
 
         return { ...user, type: 'regular' };
-      },
-    }),
-    Credentials({
-      id: 'guest',
-      credentials: {},
-      async authorize() {
-        console.log('🔄 Guest authorization starting...');
-        try {
-          const guestUsers = await createGuestUser();
-          const guestUser = guestUsers[0];
-          console.log('✅ Guest user created:', guestUser);
-
-          // Return user in the format NextAuth expects
-          return {
-            id: guestUser.id,
-            email: guestUser.email,
-            name: guestUser.email, // Add name field
-            type: 'guest'
-          };
-        } catch (error) {
-          console.error('❌ Guest authorization failed:', error);
-          // Return a simple fallback user
-          const fallbackId = `guest-${Date.now()}`;
-          return {
-            id: fallbackId,
-            email: `${fallbackId}@fallback.com`,
-            name: fallbackId,
-            type: 'guest'
-          };
-        }
       },
     }),
   ],

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { eq, desc, and, asc, sql, gt, exists } from 'drizzle-orm';
+import { eq, desc, and, asc, sql, gt, lt, exists } from 'drizzle-orm';
 import postgres from 'postgres';
 
 import type { User, Chat, DBMessage, Suggestion } from './schema';
@@ -158,18 +158,22 @@ export async function getChatsByUserId({
   }
 
   try {
-    let query = database
-      .select()
-      .from(chat)
-      .where(eq(chat.userId, id))
-      .orderBy(desc(chat.createdAt))
-      .limit(limit + 1);
+    let whereConditions = [eq(chat.userId, id)];
 
     if (startingAfter) {
-      query = query.where(gt(chat.createdAt, new Date(startingAfter)));
+      whereConditions.push(gt(chat.createdAt, new Date(startingAfter)));
     }
 
-    const chats = await query;
+    if (endingBefore) {
+      whereConditions.push(lt(chat.createdAt, new Date(endingBefore)));
+    }
+
+    const chats = await database
+      .select()
+      .from(chat)
+      .where(and(...whereConditions))
+      .orderBy(desc(chat.createdAt))
+      .limit(limit + 1);
     const hasMore = chats.length > limit;
     
     return {
