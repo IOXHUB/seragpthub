@@ -97,7 +97,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   });
                 }}
               >
-                {isGuest ? 'Login to your account' : 'Sign out'}
+                Çıkış Yap
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
