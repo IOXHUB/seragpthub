@@ -76,7 +76,7 @@ export function SidebarUserNav({ user }: { user: User }) {
               className="cursor-pointer"
               onSelect={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             >
-              {`Toggle ${resolvedTheme === 'light' ? 'dark' : 'light'} mode`}
+              {`${resolvedTheme === 'light' ? 'Koyu' : 'Açık'} tema`}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
