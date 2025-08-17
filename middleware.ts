@@ -42,30 +42,34 @@ export async function middleware(request: NextRequest) {
   // Check for guest session in URL parameters or cookies if no NextAuth token
   let guestSession = null;
   if (!token) {
-    const url = new URL(request.url);
-    const guestId = url.searchParams.get('guestId');
-    const guestEmail = url.searchParams.get('guestEmail');
-
     // Check cookies first
     const guestCookie = request.cookies.get('guest-session');
     if (guestCookie?.value) {
       try {
         guestSession = JSON.parse(guestCookie.value);
+        console.log('✅ Found guest session in cookie:', guestSession.user?.email);
       } catch (error) {
         console.error('❌ Failed to parse guest session cookie:', error);
       }
     }
 
-    // If URL params exist and no valid cookie, create session from URL params
-    if (!guestSession && guestId && guestEmail) {
-      guestSession = {
-        user: {
-          id: guestId,
-          email: guestEmail,
-          name: guestEmail,
-          type: 'guest'
-        }
-      };
+    // If no cookie, check URL params
+    if (!guestSession) {
+      const url = new URL(request.url);
+      const guestId = url.searchParams.get('guestId');
+      const guestEmail = url.searchParams.get('guestEmail');
+
+      if (guestId && guestEmail) {
+        guestSession = {
+          user: {
+            id: guestId,
+            email: guestEmail,
+            name: guestEmail,
+            type: 'guest'
+          }
+        };
+        console.log('✅ Created guest session from URL params:', guestSession.user?.email);
+      }
     }
   }
 
