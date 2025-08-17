@@ -9,7 +9,7 @@ export function GuestRegistrationPrompt() {
     <div className="flex h-full w-full items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">SeraGPT'ye Hoş Geldiniz! 🤖</CardTitle>
+          <CardTitle className="text-2xl">SeraGPT&apos;ye Hoş Geldiniz! 🤖</CardTitle>
           <CardDescription>
             Sohbet özelliklerini kullanabilmek için ücretsiz bir hesap oluşturun
           </CardDescription>
