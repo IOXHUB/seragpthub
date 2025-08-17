@@ -17,7 +17,6 @@ export const devFallback = {
       id,
       email,
       password: 'fallback-password', // Simple password for fallback
-      createdAt: new Date(),
     };
     devUsers.set(id, user);
     return user;
@@ -30,7 +29,6 @@ export const devFallback = {
       id,
       email,
       password: 'guest-password', // Simple password for fallback
-      createdAt: new Date(),
     };
     devUsers.set(id, user);
     console.log('✅ Created guest user:', { id, email });

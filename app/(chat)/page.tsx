@@ -8,13 +8,14 @@ import { auth } from '../(auth)/auth';
 import { redirect } from 'next/navigation';
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     guestId?: string;
     guestEmail?: string;
-  };
+  }>;
 };
 
 export default async function Page({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
   const session = await auth();
 
   // Try to get guest session from headers (set by middleware)
@@ -37,12 +38,12 @@ export default async function Page({ searchParams }: Props) {
     }
 
     // Fallback to URL parameters
-    if (!finalSession && searchParams.guestId && searchParams.guestEmail) {
+    if (!finalSession && resolvedSearchParams.guestId && resolvedSearchParams.guestEmail) {
       finalSession = {
         user: {
-          id: searchParams.guestId,
-          email: searchParams.guestEmail,
-          name: searchParams.guestEmail,
+          id: resolvedSearchParams.guestId,
+          email: resolvedSearchParams.guestEmail,
+          name: resolvedSearchParams.guestEmail,
           type: 'guest'
         },
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
