@@ -20,6 +20,8 @@ import {
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { BarChart3, MessageSquare } from 'lucide-react';
+import { isAdmin } from '@/lib/admin-utils';
+import { useSession } from 'next-auth/react';
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
