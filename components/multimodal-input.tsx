@@ -286,7 +286,7 @@ function PureMultimodalInput({
       <Textarea
         data-testid="multimodal-input"
         ref={textareaRef}
-        placeholder="Send a message..."
+        placeholder={isGuest ? "Sohbet etmek için kayıt olmanız gerekmektedir..." : "Mesaj gönderin..."}
         value={input}
         onChange={handleInput}
         className={cx(
