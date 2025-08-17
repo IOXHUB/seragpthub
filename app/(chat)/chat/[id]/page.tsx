@@ -23,14 +23,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     redirect('/api/auth/guest');
   }
 
-  // Check if user is guest
-  const isGuest = guestRegex.test(session.user?.email ?? '') || session.user?.type === 'guest';
-
-  // Show registration prompt for guests
-  if (isGuest) {
-    return <GuestRegistrationPrompt />;
-  }
-
   if (chat.visibility === 'private') {
     if (!session.user) {
       return notFound();
