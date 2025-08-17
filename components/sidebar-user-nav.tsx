@@ -65,6 +65,9 @@ export function SidebarUserNav({ user }: { user: User }) {
                 <span data-testid="user-email" className="truncate">
                   {isGuest ? 'Misafir' : user?.email}
                 </span>
+                {isAdmin(data) && !isGuest && (
+                  <Crown className="h-4 w-4 text-yellow-500" />
+                )}
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
             )}
