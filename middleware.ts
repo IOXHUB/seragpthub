@@ -70,35 +70,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!token && !guestSession) {
-    // Rate limiting: Don't create guests too frequently from same IP
-    const clientIp = request.headers.get('x-forwarded-for') ||
-                      request.headers.get('x-real-ip') ||
-                      'unknown';
-    const now = Date.now();
-    const lastRequest = recentGuests.get(clientIp);
-
-    // Very permissive rate limiting in development, stricter in production
-    const isGuestCreationRequest = pathname === '/api/auth/guest' || request.url.includes('/api/auth/guest');
-    const rateLimitWindow = isDevelopmentEnvironment ? 1000 : 30000; // 1 second in dev, 30 seconds in prod
-
-    // In development, be extremely permissive to avoid blocking normal usage
-    if (!isDevelopmentEnvironment && !isGuestCreationRequest && lastRequest && (now - lastRequest) < rateLimitWindow) {
-      return new Response('Rate limited. Please wait and refresh the page.', { status: 429 });
-    }
-
-    if (!isGuestCreationRequest) {
-      recentGuests.set(clientIp, now);
-    }
-
-    // Clean up old entries (older than 1 minute)
-    for (const [ip, timestamp] of recentGuests.entries()) {
-      if (now - timestamp > 60000) {
-        recentGuests.delete(ip);
-      }
-    }
-
     const redirectUrl = encodeURIComponent(request.url);
-
     return NextResponse.redirect(
       new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url),
     );
