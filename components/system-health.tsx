@@ -99,9 +99,9 @@ export function SystemHealth() {
           size="sm"
           onClick={checkHealth}
           disabled={isLoading}
-          className="h-8 w-8 p-0"
+          className="size-8 p-0"
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} />
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
