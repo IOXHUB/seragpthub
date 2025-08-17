@@ -28,9 +28,9 @@ export default async function DashboardPage() {
   return (
     <div className="container max-w-6xl mx-auto p-6 space-y-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <p className="text-muted-foreground">
-          Sistem durumu ve istatistikleri
+          Sistem yönetimi ve izleme paneli
         </p>
       </div>
 
