@@ -69,7 +69,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/" onClick={() => setOpenMobile(false)}>
-                <MessageSquare className="h-4 w-4" />
+                <MessageSquare className="size-4" />
                 <span>Sohbet</span>
               </Link>
             </SidebarMenuButton>
