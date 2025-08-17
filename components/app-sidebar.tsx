@@ -74,14 +74,16 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/dashboard" onClick={() => setOpenMobile(false)}>
-                <BarChart3 className="h-4 w-4" />
-                <span>Dashboard</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {isAdmin(session) && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/dashboard" onClick={() => setOpenMobile(false)}>
+                  <BarChart3 className="h-4 w-4" />
+                  <span>Admin Dashboard</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
         <SidebarHistory user={user} />
       </SidebarContent>
