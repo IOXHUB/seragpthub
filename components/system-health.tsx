@@ -135,7 +135,7 @@ export function SystemHealth() {
         ) : (
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-muted-foreground" />
+              <RefreshCw className="size-8 animate-spin mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">Sistem durumu kontrol ediliyor...</p>
             </div>
           </div>
