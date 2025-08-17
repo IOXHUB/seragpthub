@@ -7,14 +7,7 @@ import { DataStreamHandler } from '@/components/data-stream-handler';
 import { auth } from '@/lib/auth-utils';
 import { redirect } from 'next/navigation';
 
-type Props = {
-  searchParams: Promise<{
-    guestId?: string;
-    guestEmail?: string;
-  }>;
-};
-
-export default async function Page({ searchParams }: Props) {
+export default async function Page() {
   const session = await auth();
 
   if (!session) {
