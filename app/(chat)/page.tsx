@@ -6,8 +6,6 @@ import { generateUUID } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { auth } from '@/lib/auth-utils';
 import { redirect } from 'next/navigation';
-import { GuestRegistrationPrompt } from '@/components/guest-registration-prompt';
-import { guestRegex } from '@/lib/constants';
 
 export default async function Page() {
   const session = await auth();
