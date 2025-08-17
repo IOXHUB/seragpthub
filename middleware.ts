@@ -102,11 +102,12 @@ export async function middleware(request: NextRequest) {
     const now = Date.now();
     const lastRequest = recentGuests.get(clientIp);
 
-    // Allow max 1 guest creation per 5 seconds per IP in development
+    // Very permissive rate limiting in development, stricter in production
     const isGuestCreationRequest = pathname === '/api/auth/guest' || request.url.includes('/api/auth/guest');
-    const rateLimitWindow = isDevelopmentEnvironment ? 5000 : 30000; // 5 seconds in dev, 30 seconds in prod
+    const rateLimitWindow = isDevelopmentEnvironment ? 1000 : 30000; // 1 second in dev, 30 seconds in prod
 
-    if (!isGuestCreationRequest && lastRequest && (now - lastRequest) < rateLimitWindow) {
+    // In development, be extremely permissive to avoid blocking normal usage
+    if (!isDevelopmentEnvironment && !isGuestCreationRequest && lastRequest && (now - lastRequest) < rateLimitWindow) {
       return new Response('Rate limited. Please wait and refresh the page.', { status: 429 });
     }
 
