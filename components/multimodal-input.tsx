@@ -286,9 +286,15 @@ function PureMultimodalInput({
       <Textarea
         data-testid="multimodal-input"
         ref={textareaRef}
-        placeholder={isGuest ? "Sohbet etmek için kayıt olmanız gerekmektedir..." : "Mesaj gönderin..."}
+        placeholder={isGuest ? "Sohbet etmek için kayıt olmanız gerekmektedir..." : "Mesaj g��nderin..."}
         value={input}
         onChange={handleInput}
+        disabled={isGuest}
+        onFocus={() => {
+          if (isGuest) {
+            toast.error('Sohbet etmek için kayıt olmanız gerekmektedir');
+          }
+        }}
         className={cx(
           'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-10 dark:border-zinc-700',
           className,
