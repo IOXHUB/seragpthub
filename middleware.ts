@@ -88,16 +88,13 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
     response.headers.set('x-guest-session', JSON.stringify(guestSession));
 
-    // Set cookie if it doesn't exist (but don't redirect)
-    const guestCookie = request.cookies.get('guest-session');
-    if (!guestCookie?.value) {
-      response.cookies.set('guest-session', JSON.stringify(guestSession), {
-        httpOnly: true,
-        secure: !isDevelopmentEnvironment,
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 // 24 hours
-      });
-    }
+    // Always set/update cookie to ensure it's fresh
+    response.cookies.set('guest-session', JSON.stringify(guestSession), {
+      httpOnly: true,
+      secure: !isDevelopmentEnvironment,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 // 24 hours
+    });
 
     return response;
   }
