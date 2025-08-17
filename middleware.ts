@@ -2,8 +2,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { guestRegex, isDevelopmentEnvironment } from './lib/constants';
 
-// Simple in-memory rate limiting for guest creation
+// Simple in-memory rate limiting for guest creation (very permissive in dev)
 const recentGuests = new Map<string, number>();
+
+// Clear cache periodically to prevent memory leaks
+setInterval(() => {
+  recentGuests.clear();
+}, 60000); // Clear every minute
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
