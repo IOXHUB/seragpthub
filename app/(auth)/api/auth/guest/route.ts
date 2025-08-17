@@ -18,7 +18,28 @@ export async function GET(request: Request) {
     redirectUrlObj.searchParams.set('guestEmail', guestUser.email);
 
     console.log('✅ Guest session created, redirecting to:', redirectUrlObj.toString());
-    return NextResponse.redirect(redirectUrlObj);
+
+    // Create response with redirect
+    const response = NextResponse.redirect(redirectUrlObj);
+
+    // Set guest session cookie to prevent future redirects
+    const guestSession = {
+      user: {
+        id: guestUser.id,
+        email: guestUser.email,
+        name: guestUser.email,
+        type: 'guest'
+      }
+    };
+
+    response.cookies.set('guest-session', JSON.stringify(guestSession), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 // 24 hours
+    });
+
+    return response;
 
   } catch (error) {
     console.error('❌ Guest route error:', error);
