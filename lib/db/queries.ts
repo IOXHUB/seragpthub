@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { eq, desc, and, asc, sql, gt, exists } from 'drizzle-orm';
+import { eq, desc, and, asc, sql, gt, lt, exists } from 'drizzle-orm';
 import postgres from 'postgres';
 
 import type { User, Chat, DBMessage, Suggestion } from './schema';
