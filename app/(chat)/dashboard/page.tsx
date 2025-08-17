@@ -14,10 +14,15 @@ export default async function DashboardPage() {
 
   // Check if user is guest
   const isGuest = guestRegex.test(session.user?.email ?? '') || session.user?.type === 'guest';
-  
+
   // Show registration prompt for guests
   if (isGuest) {
     return <GuestRegistrationPrompt />;
+  }
+
+  // Check if user is admin
+  if (!isAdmin(session)) {
+    notFound(); // 404 page for non-admin users
   }
 
   return (
