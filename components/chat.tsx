@@ -188,6 +188,7 @@ export function Chat({
               setMessages={setMessages}
               sendMessage={sendMessage}
               selectedVisibilityType={visibilityType}
+              session={session}
             />
           )}
         </form>
