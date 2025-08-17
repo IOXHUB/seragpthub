@@ -63,6 +63,9 @@ function PureMultimodalInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
 
+  // Check if user is guest
+  const isGuest = guestRegex.test(session.user?.email ?? '') || session.user?.type === 'guest';
+
   useEffect(() => {
     if (textareaRef.current) {
       adjustHeight();
