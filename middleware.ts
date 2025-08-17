@@ -70,10 +70,13 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!token && !guestSession) {
-    const redirectUrl = encodeURIComponent(request.url);
-    return NextResponse.redirect(
-      new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url),
-    );
+    // Only redirect to create guest if we're not already in the auth flow
+    if (!pathname.startsWith('/api/auth/')) {
+      const redirectUrl = encodeURIComponent(request.url);
+      return NextResponse.redirect(
+        new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url),
+      );
+    }
   }
 
   // Add guest session to request headers for server components
