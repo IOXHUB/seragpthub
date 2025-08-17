@@ -64,7 +64,8 @@ export const {
 
         if (!passwordsMatch) return null;
 
-        return { ...user, type: 'regular' };
+        const userType = getUserType(user.email);
+        return { ...user, type: userType };
       },
     }),
     Credentials({
