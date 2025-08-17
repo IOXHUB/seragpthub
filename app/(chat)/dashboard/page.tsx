@@ -1,8 +1,9 @@
 import { auth } from '@/lib/auth-utils';
-import { redirect } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
 import { guestRegex } from '@/lib/constants';
 import { GuestRegistrationPrompt } from '@/components/guest-registration-prompt';
 import { SystemHealth } from '@/components/system-health';
+import { isAdmin } from '@/lib/admin-utils';
 
 export default async function DashboardPage() {
   const session = await auth();
