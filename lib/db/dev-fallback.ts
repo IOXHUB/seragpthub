@@ -5,6 +5,15 @@ import { generateUUID } from '../utils';
 const devUsers: Map<string, User> = new Map();
 const devChats: Map<string, any> = new Map();
 
+// Add a test chat for development
+devChats.set('test-chat-1', {
+  id: 'test-chat-1',
+  userId: 'test-user-1',
+  title: 'Test Chat',
+  visibility: 'public',
+  createdAt: new Date('2024-01-01')
+});
+
 export const devFallback = {
   async getUser(email: string): Promise<Array<User>> {
     const users = Array.from(devUsers.values()).filter(u => u.email === email);
