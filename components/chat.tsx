@@ -48,6 +48,7 @@ export function Chat({
 
   const { mutate } = useSWRConfig();
   const { setDataStream } = useDataStream();
+  const router = useRouter();
 
   const [input, setInput] = useState<string>('');
 
