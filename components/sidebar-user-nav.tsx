@@ -95,9 +95,13 @@ export function SidebarUserNav({ user }: { user: User }) {
                     return;
                   }
 
-                  signOut({
-                    redirectTo: '/',
-                  });
+                  if (isGuest) {
+                    router.push('/register');
+                  } else {
+                    signOut({
+                      redirectTo: '/',
+                    });
+                  }
                 }}
               >
                 Çıkış Yap
