@@ -24,6 +24,14 @@ export const entitlementsByUserType: Record<UserType, Entitlements> = {
   },
 
   /*
+   * For admin users - unlimited access
+   */
+  admin: {
+    maxMessagesPerDay: 10000, // Very high limit for admins
+    availableChatModelIds: ['chat-model', 'chat-model-reasoning'],
+  },
+
+  /*
    * TODO: For users with an account and a paid membership
    */
 };
