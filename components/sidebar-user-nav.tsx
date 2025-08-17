@@ -104,7 +104,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   }
                 }}
               >
-                Çıkış Yap
+                {isGuest ? 'Kayıt Ol' : 'Çıkış Yap'}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
