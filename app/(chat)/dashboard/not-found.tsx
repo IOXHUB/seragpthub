@@ -7,7 +7,7 @@ export default function DashboardNotFound() {
     <div className="flex size-full items-center justify-center p-4">
       <div className="text-center space-y-6">
         <div className="flex justify-center">
-          <ShieldAlert className="h-24 w-24 text-muted-foreground" />
+          <ShieldAlert className="size-24 text-muted-foreground" />
         </div>
         
         <div className="space-y-2">
