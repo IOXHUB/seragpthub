@@ -78,7 +78,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/dashboard" onClick={() => setOpenMobile(false)}>
-                  <BarChart3 className="h-4 w-4" />
+                  <BarChart3 className="size-4" />
                   <span>Admin Dashboard</span>
                 </Link>
               </SidebarMenuButton>
