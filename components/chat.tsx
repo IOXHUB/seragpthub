@@ -92,6 +92,30 @@ export function Chat({
           type: 'error',
           description: error.message,
         });
+      } else {
+        // Check for guest user error
+        try {
+          const errorResponse = JSON.parse(error.message);
+          if (errorResponse.error === 'guest_user') {
+            toast({
+              type: 'error',
+              description: errorResponse.message,
+            });
+            // Redirect to registration after a short delay
+            setTimeout(() => {
+              router.push('/register');
+            }, 2000);
+            return;
+          }
+        } catch (e) {
+          // Not a JSON error, handle normally
+        }
+
+        // Default error handling
+        toast({
+          type: 'error',
+          description: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+        });
       }
     },
   });
