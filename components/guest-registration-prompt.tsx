@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export function GuestRegistrationPrompt() {
   return (
-    <div className="flex h-full w-full items-center justify-center p-4">
+    <div className="flex size-full items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">SeraGPT&apos;ye Hoş Geldiniz! 🤖</CardTitle>
