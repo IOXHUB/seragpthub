@@ -6,6 +6,7 @@ import type { Session } from 'next-auth';
 const ADMIN_EMAILS = [
   'admin@seragpt.com',
   'volkan@seragpt.com',
+  'test@admin.com', // Test için admin kullanıcısı
   // Buraya başka admin email'leri eklenebilir
 ];
 
