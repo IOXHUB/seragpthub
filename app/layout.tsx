@@ -10,6 +10,33 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.seragpt.com'),
   title: 'SeraGPT - Yapay Zeka Asistanı',
   description: 'SeraGPT ile güçlü yapay zeka desteği alın. Sorularınızı sorun, yaratıcı projelerinizde yardım alın.',
+  keywords: ['yapay zeka', 'AI', 'chatbot', 'sohbet', 'asistan', 'SeraGPT'],
+  authors: [{ name: 'SeraGPT Team' }],
+  creator: 'SeraGPT',
+  publisher: 'SeraGPT',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'tr_TR',
+    url: 'https://www.seragpt.com',
+    title: 'SeraGPT - Yapay Zeka Asistanı',
+    description: 'SeraGPT ile güçlü yapay zeka desteği alın. Sorularınızı sorun, yaratıcı projelerinizde yardım alın.',
+    siteName: 'SeraGPT',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SeraGPT - Yapay Zeka Asistanı',
+    description: 'SeraGPT ile güçlü yapay zeka desteği alın.',
+  },
+  alternates: {
+    canonical: 'https://www.seragpt.com',
+    languages: {
+      'tr': 'https://www.seragpt.com',
+    },
+  },
 };
 
 export const viewport = {
