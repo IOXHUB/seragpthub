@@ -34,7 +34,14 @@ export async function fetchWithErrorHandlers(
     const response = await fetch(input, init);
 
     if (!response.ok) {
-      const { code, cause } = await response.json();
+      const errorData = await response.json();
+
+      // Special handling for guest user errors
+      if (errorData.error === 'guest_user') {
+        throw new Error(JSON.stringify(errorData));
+      }
+
+      const { code, cause } = errorData;
       throw new ChatSDKError(code as ErrorCode, cause);
     }
 
