@@ -46,31 +46,17 @@ export async function middleware(request: NextRequest) {
     const guestId = url.searchParams.get('guestId');
     const guestEmail = url.searchParams.get('guestEmail');
 
-    // First check cookies BEFORE URL params to avoid loops
+    // Check cookies first
     const guestCookie = request.cookies.get('guest-session');
     if (guestCookie?.value) {
       try {
         guestSession = JSON.parse(guestCookie.value);
-
-        // If we have a valid cookie but also URL params, clean the URL
-        if (guestId && guestEmail) {
-          const cleanUrl = new URL(url);
-          cleanUrl.searchParams.delete('guestId');
-          cleanUrl.searchParams.delete('guestEmail');
-
-          const redirectResponse = NextResponse.redirect(cleanUrl);
-          redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
-          return redirectResponse;
-        }
       } catch (error) {
         console.error('❌ Failed to parse guest session cookie:', error);
-        // If cookie is corrupted, clear it
-        const response = NextResponse.next();
-        response.cookies.delete('guest-session');
       }
     }
 
-    // Only check URL params if no valid cookie exists
+    // If URL params exist and no valid cookie, create session from URL params
     if (!guestSession && guestId && guestEmail) {
       guestSession = {
         user: {
@@ -80,22 +66,6 @@ export async function middleware(request: NextRequest) {
           type: 'guest'
         }
       };
-
-      // Set cookie and redirect to clean URL
-      const cleanUrl = new URL(url);
-      cleanUrl.searchParams.delete('guestId');
-      cleanUrl.searchParams.delete('guestEmail');
-
-      const redirectResponse = NextResponse.redirect(cleanUrl);
-      redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
-      redirectResponse.cookies.set('guest-session', JSON.stringify(guestSession), {
-        httpOnly: true,
-        secure: !isDevelopmentEnvironment,
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 // 24 hours
-      });
-
-      return redirectResponse;
     }
   }
 
