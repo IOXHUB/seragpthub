@@ -91,7 +91,7 @@ export function SystemHealth() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Activity className="h-5 w-5" />
+          <Activity className="size-5" />
           Sistem Sağlığı
         </CardTitle>
         <Button
