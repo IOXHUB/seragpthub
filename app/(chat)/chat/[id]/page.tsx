@@ -7,6 +7,8 @@ import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { convertToUIMessages } from '@/lib/utils';
+import { GuestRegistrationPrompt } from '@/components/guest-registration-prompt';
+import { guestRegex } from '@/lib/constants';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
