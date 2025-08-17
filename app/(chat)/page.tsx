@@ -16,6 +16,14 @@ export default async function Page() {
     redirect('/api/auth/guest');
   }
 
+  // Check if user is guest
+  const isGuest = guestRegex.test(session.user?.email ?? '') || session.user?.type === 'guest';
+
+  // Show registration prompt for guests
+  if (isGuest) {
+    return <GuestRegistrationPrompt />;
+  }
+
   const id = generateUUID();
 
   const cookieStore = await cookies();
