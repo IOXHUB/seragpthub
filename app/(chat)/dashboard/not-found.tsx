@@ -4,7 +4,7 @@ import { ShieldAlert } from 'lucide-react';
 
 export default function DashboardNotFound() {
   return (
-    <div className="flex h-full w-full items-center justify-center p-4">
+    <div className="flex size-full items-center justify-center p-4">
       <div className="text-center space-y-6">
         <div className="flex justify-center">
           <ShieldAlert className="h-24 w-24 text-muted-foreground" />
