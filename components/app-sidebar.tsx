@@ -26,6 +26,7 @@ import { useSession } from 'next-auth/react';
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
+  const { data: session } = useSession();
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
