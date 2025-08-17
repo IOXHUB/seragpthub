@@ -53,7 +53,7 @@ export function GuestRegistrationPrompt() {
             <Link href="#" className="underline">
               Gizlilik Politikası
             </Link>
-            'nı kabul etmiş olursunuz.
+            &apos;nı kabul etmiş olursunuz.
           </p>
         </CardContent>
       </Card>
