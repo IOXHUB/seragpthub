@@ -46,7 +46,6 @@ export async function middleware(request: NextRequest) {
     if (guestCookie?.value) {
       try {
         guestSession = JSON.parse(guestCookie.value);
-        console.log('✅ Middleware - Guest session from cookie');
 
         // If we have a valid cookie but also URL params, clean the URL
         if (guestId && guestEmail) {
@@ -56,7 +55,6 @@ export async function middleware(request: NextRequest) {
 
           const redirectResponse = NextResponse.redirect(cleanUrl);
           redirectResponse.headers.set('x-guest-session', JSON.stringify(guestSession));
-          console.log('✅ Middleware - Cleaning URL, guest session from cookie');
           return redirectResponse;
         }
       } catch (error) {
@@ -77,7 +75,6 @@ export async function middleware(request: NextRequest) {
           type: 'guest'
         }
       };
-      console.log('✅ Middleware - Guest session from URL params');
 
       // Set cookie and redirect to clean URL
       const cleanUrl = new URL(url);
@@ -93,7 +90,6 @@ export async function middleware(request: NextRequest) {
         maxAge: 24 * 60 * 60 // 24 hours
       });
 
-      console.log('✅ Middleware - Setting guest cookie and redirecting to clean URL');
       return redirectResponse;
     }
   }
