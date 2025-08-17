@@ -8,6 +8,7 @@ import {
 } from 'ai';
 import { auth } from '@/lib/auth-utils';
 import { type UserType } from '@/app/(auth)/auth';
+import { guestRegex } from '@/lib/constants';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import {
   createStreamId,
