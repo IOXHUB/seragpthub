@@ -22,6 +22,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from './toast';
 import { LoaderIcon } from './icons';
 import { guestRegex } from '@/lib/constants';
+import { isAdmin } from '@/lib/admin-utils';
+import { Crown } from 'lucide-react';
 
 export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter();
