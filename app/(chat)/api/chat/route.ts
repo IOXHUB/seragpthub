@@ -95,6 +95,23 @@ export async function POST(request: Request) {
 
     const userType: UserType = session.user.type;
 
+    // Check if user is guest
+    const isGuest = guestRegex.test(session.user.email ?? '') || session.user.type === 'guest';
+
+    if (isGuest) {
+      return new Response(
+        JSON.stringify({
+          error: 'guest_user',
+          message: 'Sohbet etmek için kayıt olmanız gerekmektedir',
+          redirectTo: '/register'
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const messageCount = await getMessageCountByUserId({
       id: session.user.id,
       differenceInHours: 24,
