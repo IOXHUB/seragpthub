@@ -58,7 +58,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                   className="rounded-full"
                 />
                 <span data-testid="user-email" className="truncate">
-                  {isGuest ? 'Guest' : user?.email}
+                  {user?.email}
                 </span>
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
