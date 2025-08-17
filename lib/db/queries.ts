@@ -164,6 +164,10 @@ export async function getChatsByUserId({
       whereConditions.push(gt(chat.createdAt, new Date(startingAfter)));
     }
 
+    if (endingBefore) {
+      whereConditions.push(lt(chat.createdAt, new Date(endingBefore)));
+    }
+
     const chats = await database
       .select()
       .from(chat)
